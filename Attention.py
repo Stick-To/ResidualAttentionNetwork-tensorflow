@@ -92,7 +92,8 @@ class Attention:
             varavg_op = varavg.apply(var_list)
             optimizer = tf.train.MomentumOptimizer(self.lr, momentum=0.9, use_nesterov=True)
             train_op = optimizer.minimize(self.total_loss, global_step=self.global_step)
-            self.train_op = tf.group(lossavg_op, varavg_op, train_op)
+            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+            self.train_op = tf.group([update_ops, lossavg_op, varavg_op, train_op])
             self.accuracy = tf.reduce_mean(
                 tf.cast(tf.equal(tf.argmax(final_dense, 1), tf.argmax(self.labels, 1)), tf.float32), name='accuracy'
             )
